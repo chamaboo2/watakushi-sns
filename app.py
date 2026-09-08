@@ -32,10 +32,15 @@ html, body, [data-testid="stAppViewContainer"] { background:var(--paper); color:
 .muted { color:var(--muted); font-size:.9rem; }
 .callout { border-left:4px solid var(--vermilion); background:#fff; padding:10px 13px; border-radius:8px; margin:10px 0 14px; }
 .hero-copy { font-size:1.05rem; line-height:1.7; text-align:center; margin:.5rem 0 1rem; }
-.surname-confirmation { display:flex; align-items:center; gap:11px; margin:9px 0 14px; color:#403b35; font-size:.9rem; }
-.done-seal { display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; width:42px; height:42px;
-  border:3px solid var(--vermilion); border-radius:50%; color:var(--vermilion); font-family:"Yu Mincho","Hiragino Mincho ProN",serif;
-  font-size:1.05rem; font-weight:800; transform:rotate(-4deg); box-shadow:inset 0 0 0 1px rgba(169,59,50,.18); }
+[data-testid="stForm"] [data-testid="stCheckbox"] label { display:flex; align-items:center; gap:11px; margin:5px 0 9px; cursor:pointer; }
+[data-testid="stForm"] [data-testid="stCheckbox"] label > div:first-child,
+[data-testid="stForm"] [data-testid="stCheckbox"] label > span:first-child { position:absolute; opacity:0; pointer-events:none; }
+[data-testid="stForm"] [data-testid="stCheckbox"] label::before { content:""; display:inline-flex; align-items:center; justify-content:center;
+  flex:0 0 42px; width:42px; height:42px; box-sizing:border-box; border:3px solid #c8bbb5; border-radius:50%;
+  color:var(--vermilion); background:#fff; font-family:"Yu Mincho","Hiragino Mincho ProN",serif; font-size:1.05rem; font-weight:800;
+  transform:rotate(-4deg); transition:border-color .15s ease, color .15s ease, transform .15s ease; }
+[data-testid="stForm"] [data-testid="stCheckbox"] label:has(input:checked)::before { content:"済"; border-color:var(--vermilion);
+  box-shadow:inset 0 0 0 1px rgba(169,59,50,.18); transform:rotate(-4deg) scale(1.04); }
 
 .stamp { display:inline-flex; align-items:center; justify-content:center; width:54px; height:54px;
   border:3px solid var(--stamp-color,#a93b32); color:var(--stamp-color,#a93b32); border-radius:50%;
@@ -236,12 +241,14 @@ def registration():
     st.markdown('<div class="callout"><b>お名前ではなく、名字をお聞かせください。</b><br><span class="muted">原則として、実際に使用している名字をご登録ください。</span></div>', unsafe_allow_html=True)
     with st.form("register_form"):
         surname = st.text_input("名字", placeholder="例：柴原", max_chars=12)
-        st.markdown('<div class="surname-confirmation"><span class="done-seal">済</span><span>実際に使用している名字です</span></div>', unsafe_allow_html=True)
+        agreed = st.checkbox("実際に使用している名字です")
         submitted = st.form_submit_button("ハンコを作る", type="primary", use_container_width=True)
     if submitted:
         cleaned = surname.strip().replace(" ", "").replace("　", "")
         if not cleaned:
             st.error("名字を入力してください。")
+        elif not agreed:
+            st.error("丸い確認欄を押して『済』にしてください。")
         else:
             st.session_state.surname = cleaned
             st.session_state.registered = True
