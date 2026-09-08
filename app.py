@@ -35,6 +35,12 @@ html, body, [data-testid="stAppViewContainer"] { background:var(--paper); color:
 [data-testid="stForm"] [data-testid="stCheckbox"] label { display:flex; align-items:center; gap:11px; margin:5px 0 9px; cursor:pointer; }
 [data-testid="stForm"] [data-testid="stCheckbox"] label > div:first-child,
 [data-testid="stForm"] [data-testid="stCheckbox"] label > span:first-child { position:absolute; opacity:0; pointer-events:none; }
+[data-testid="stForm"] [data-testid="stCheckbox"] input[type="checkbox"] { position:absolute !important; width:0 !important;
+  height:0 !important; margin:0 !important; opacity:0 !important; pointer-events:none !important; }
+[data-testid="stForm"] [data-testid="stCheckbox"] input[type="checkbox"] + div { display:none !important; }
+[data-testid="stForm"] [data-testid="stCheckbox"] label > span:has(input[type="checkbox"]),
+[data-testid="stForm"] [data-testid="stCheckbox"] label > div:has(input[type="checkbox"]) { position:absolute !important;
+  width:0 !important; height:0 !important; margin:0 !important; overflow:hidden !important; opacity:0 !important; pointer-events:none !important; }
 [data-testid="stForm"] [data-testid="stCheckbox"] label::before { content:""; display:inline-flex; align-items:center; justify-content:center;
   flex:0 0 42px; width:42px; height:42px; box-sizing:border-box; border:3px solid #c8bbb5; border-radius:50%;
   color:var(--vermilion); background:#fff; font-family:"Yu Mincho","Hiragino Mincho ProN",serif; font-size:1.05rem; font-weight:800;
