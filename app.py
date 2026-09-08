@@ -21,10 +21,11 @@ CSS = r"""
 }
 html, body, [data-testid="stAppViewContainer"] { background:var(--paper); color:var(--ink); }
 [data-testid="stHeader"] { background:rgba(251,250,246,.95); }
-.block-container { max-width:720px; padding-top:1.2rem; padding-bottom:6rem; }
+.block-container { max-width:720px; padding-top:2.4rem; padding-bottom:6rem; }
 #MainMenu, footer { visibility:hidden; }
-.app-title { text-align:center; font-weight:800; font-size:1.35rem; letter-spacing:.05em; margin-bottom:.15rem; }
-.app-sub { text-align:center; color:var(--muted); font-size:.82rem; margin-bottom:1.2rem; }
+.app-title { text-align:center; color:#2d2a26 !important; font-weight:800; font-size:1.35rem; line-height:1.5;
+  letter-spacing:.05em; margin:0 0 .15rem; padding-top:.35rem; opacity:1 !important; }
+.app-sub { text-align:center; color:#665f57 !important; font-size:.82rem; margin-bottom:1.2rem; opacity:1 !important; }
 .attendance { width:max-content; max-width:100%; margin:-.65rem auto 1rem; padding:5px 11px; border:1px solid #ded8ce;
   border-radius:999px; background:#fff; color:#6f675e; font-size:.74rem; font-weight:700; letter-spacing:.04em; }
 .section-title { font-weight:800; font-size:1.25rem; margin:.25rem 0 .7rem; }
@@ -105,7 +106,8 @@ html, body, [data-testid="stAppViewContainer"] { background:var(--paper); color:
 [data-testid="stRadio"] > div { gap:.2rem; }
 [data-testid="stRadio"] label { padding:.35rem .55rem; border-radius:10px; }
 @media (max-width:640px) {
-  .block-container { padding:.75rem .75rem 6.5rem; }
+  .block-container { padding:1.8rem .75rem 6.5rem; }
+  .app-title { font-size:1.22rem; padding-top:.25rem; }
   .business-card { aspect-ratio:auto; min-height:220px; padding:21px 19px; border-radius:9px; }
   .surname { font-size:1.65rem; }
   .card-bio { max-width:100%; font-size:.84rem; }
