@@ -32,6 +32,10 @@ html, body, [data-testid="stAppViewContainer"] { background:var(--paper); color:
 .muted { color:var(--muted); font-size:.9rem; }
 .callout { border-left:4px solid var(--vermilion); background:#fff; padding:10px 13px; border-radius:8px; margin:10px 0 14px; }
 .hero-copy { font-size:1.05rem; line-height:1.7; text-align:center; margin:.5rem 0 1rem; }
+.surname-confirmation { display:flex; align-items:center; gap:11px; margin:9px 0 14px; color:#403b35; font-size:.9rem; }
+.done-seal { display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; width:42px; height:42px;
+  border:3px solid var(--vermilion); border-radius:50%; color:var(--vermilion); font-family:"Yu Mincho","Hiragino Mincho ProN",serif;
+  font-size:1.05rem; font-weight:800; transform:rotate(-4deg); box-shadow:inset 0 0 0 1px rgba(169,59,50,.18); }
 
 .stamp { display:inline-flex; align-items:center; justify-content:center; width:54px; height:54px;
   border:3px solid var(--stamp-color,#a93b32); color:var(--stamp-color,#a93b32); border-radius:50%;
@@ -43,7 +47,8 @@ html, body, [data-testid="stAppViewContainer"] { background:var(--paper); color:
 .business-card { position:relative; overflow:hidden; aspect-ratio:1.72/1; min-height:250px; border:1px solid #d8d0c4;
   border-radius:10px; padding:28px 30px; background:#fffefb; box-shadow:0 10px 28px rgba(45,42,38,.09);
   margin:8px 0 18px; display:flex; flex-direction:column; justify-content:space-between; }
-.presented-card { animation:handOverCard .52s cubic-bezier(.2,.82,.25,1) both; transform-origin:50% 100%; }
+.presented-card { width:100%; max-width:680px; min-height:350px; margin:8px auto 18px;
+  animation:handOverCard .52s cubic-bezier(.2,.82,.25,1) both; transform-origin:50% 100%; }
 @keyframes handOverCard {
   0% { opacity:0; transform:translateY(48px) scale(.92) rotate(1.5deg); filter:blur(2px); }
   72% { opacity:1; transform:translateY(-3px) scale(1.012) rotate(-.25deg); filter:blur(0); }
@@ -109,6 +114,7 @@ html, body, [data-testid="stAppViewContainer"] { background:var(--paper); color:
   .block-container { padding:1.8rem .75rem 6.5rem; }
   .app-title { font-size:1.22rem; padding-top:.25rem; }
   .business-card { aspect-ratio:auto; min-height:220px; padding:21px 19px; border-radius:9px; }
+  .presented-card { min-height:220px; }
   .surname { font-size:1.65rem; }
   .card-bio { max-width:100%; font-size:.84rem; }
   .card-meta { gap:11px; }
@@ -199,11 +205,29 @@ init_state()
 
 
 def header():
-    title = f"わたくし{esc(st.session_state.surname)}と申します。" if st.session_state.get("registered") and st.session_state.get("surname") else "わたくし、こういう者です。"
+    title = f"わたくし{esc(st.session_state.surname)}と申します" if st.session_state.get("registered") and st.session_state.get("surname") else "わたくし、こういう者です。"
     st.markdown(f'<div class="app-title">{title}</div>', unsafe_allow_html=True)
     st.markdown('<div class="app-sub">承認するほどでもない日々を、承認しよう。</div>', unsafe_allow_html=True)
     if st.session_state.get("registered") and st.session_state.get("surname"):
         st.markdown(f'<div class="attendance">ただいま {esc(st.session_state.surname)} 出社中</div>', unsafe_allow_html=True)
+
+
+def render_faq():
+    faqs = [
+        ("これは会社員専用のSNSですか？", "いいえ。どなたでも参加できます。事務的な言葉づかいを、少しかわいく楽しむSNSです。上司・部下・役職・社員ランクはありません。"),
+        ("何を投稿すればよいですか？", "食べたもの、散歩、昼寝など、日常の小さな出来事で十分です。投稿を『今日の稟議書』、投稿することを『起案・提出』と呼びますが、誰かの承認は必要ありません。"),
+        ("本当の名字を登録する必要がありますか？", "原則として、実際に使用している名字を登録してください。戸籍姓に限らず、旧姓や普段使用している通称も含みます。本人確認書類の提出は求めません。"),
+        ("名字以外の個人情報も公開されますか？", "基本プロフィールは名字と短い一言だけです。年齢、性別、勤務先、学校、住所は登録項目にしていません。投稿にも個人を特定できる情報を書かないことをおすすめします。"),
+        ("ハンコは何に使いますか？", "ハンコは、このSNSでのあなたのアイコンです。『捺印』すると相手の稟議書に自分の名字の印が表示されます。捺印は一般的なSNSの『いいね』に近い機能です。"),
+        ("付箋・回覧・控えとは何ですか？", "付箋はコメント、回覧はシェア、控えはブックマークです。意味が分からなくなったときは、このご案内へお戻りください。"),
+        ("ご縁とは何ですか？", "一般的なSNSのフォローです。『ご縁を結ぶ』と、その方の稟議書を見つけやすくなります。上下関係や承認関係は生まれません。"),
+        ("嫌な投稿や利用者を見つけたら？", "投稿・名刺から通報できます。また、相手をブロックすると、その方の投稿は回覧に表示されなくなります。"),
+        ("有料にすると投稿が目立ちますか？", "いいえ。課金はハンコや名刺の着せ替えだけを想定しています。投稿の表示順や影響力が有利になる仕組みにはしません。"),
+    ]
+    st.caption("形式は少々かしこまっておりますが、どうぞ気軽にお使いください。")
+    for question, answer in faqs:
+        st.markdown(f"**{question}**")
+        st.write(answer)
 
 
 def registration():
@@ -212,19 +236,19 @@ def registration():
     st.markdown('<div class="callout"><b>お名前ではなく、名字をお聞かせください。</b><br><span class="muted">原則として、実際に使用している名字をご登録ください。</span></div>', unsafe_allow_html=True)
     with st.form("register_form"):
         surname = st.text_input("名字", placeholder="例：柴原", max_chars=12)
-        agreed = st.checkbox("実際に使用している名字です")
+        st.markdown('<div class="surname-confirmation"><span class="done-seal">済</span><span>実際に使用している名字です</span></div>', unsafe_allow_html=True)
         submitted = st.form_submit_button("ハンコを作る", type="primary", use_container_width=True)
     if submitted:
         cleaned = surname.strip().replace(" ", "").replace("　", "")
         if not cleaned:
             st.error("名字を入力してください。")
-        elif not agreed:
-            st.error("確認欄にチェックしてください。")
         else:
             st.session_state.surname = cleaned
             st.session_state.registered = True
             st.session_state.flash = f"{cleaned}さんですね。こちらがあなたの印鑑です。"
             st.rerun()
+    with st.expander("ご案内・よくあるご質問（FAQ）"):
+        render_faq()
 
 
 def get_profile(surname):
@@ -258,7 +282,7 @@ def open_profile(surname):
     st.session_state.view_profile = surname
 
 
-@st.dialog("名刺を拝見", width="large")
+@st.dialog("名刺を拝見", width="medium")
 def profile_dialog(surname):
     st.markdown('<div class="profile-prompt">名刺を一枚、お預かりしました。</div>', unsafe_allow_html=True)
     st.markdown(business_card_html(surname, own=(surname == st.session_state.surname), presented=True), unsafe_allow_html=True)
@@ -526,6 +550,9 @@ def page_profile():
             for surname in sorted(st.session_state.blocked):
                 if st.button(f"{surname}さんのブロックを解除", key=f"unblock-{surname}"):
                     st.session_state.blocked.discard(surname); st.rerun()
+
+    with st.expander("ご案内・よくあるご質問（FAQ）"):
+        render_faq()
 
 
 def main():
