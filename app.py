@@ -236,6 +236,7 @@ def esc(value):
 
 def stamp_html(surname, small=False, color="#a93b32", square=False):
     classes = "stamp" + (" small" if small else "") + (" square" if square else "")
+    display = "<br>".join([esc(surname[:2]), esc(surname[2:])]) if len(surname) > 2 else esc(surname)
     return f'<span class="{classes}" style="--stamp-color:{color}">{display}</span>'
 
 
