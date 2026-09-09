@@ -160,6 +160,8 @@ html { color-scheme:light !important; }
 [data-testid="stRadio"] > div { gap:.2rem; }
 [data-testid="stRadio"] label { padding:.35rem .55rem; border-radius:10px; }
 [data-testid="stRadio"] label:has(input:checked) { background:#fae9e5 !important; color:#8f2f27 !important; box-shadow:inset 0 0 0 1px #dfaaa2; }
+[data-testid="stRadio"] label p { color:#403b35 !important; }
+[data-testid="stRadio"] label:has(input:checked) p { color:#8f2f27 !important; font-weight:700 !important; }
 [data-testid="stFileUploader"] button { background:#fff !important; color:#403b35 !important; border:1px solid #d8d2ca !important; }
 [data-testid="stExpander"] { background:#fffdf9; border-color:#ded8ce !important; }
 @media (max-width:640px) {
@@ -177,6 +179,28 @@ html { color-scheme:light !important; }
   }
   div[class*="st-key-nav"] [data-testid="stRadio"] label > div:last-child {
     min-width:0 !important; white-space:nowrap !important;
+  }
+  /* スマホでは環境依存の黒い標準ラジオ印を隠し、文字タブとして表示する */
+  div[class*="st-key-nav"] [data-testid="stRadio"] label > div:first-child,
+  div[class*="st-key-circulation_filter"] [data-testid="stRadio"] label > div:first-child {
+    display:none !important;
+  }
+  div[class*="st-key-nav"] [data-testid="stRadio"] label p,
+  div[class*="st-key-circulation_filter"] [data-testid="stRadio"] label p {
+    display:block !important; visibility:visible !important; opacity:1 !important;
+    color:#403b35 !important; margin:0 !important; white-space:nowrap !important;
+  }
+  div[class*="st-key-nav"] [data-testid="stRadio"] label:has(input:checked) p,
+  div[class*="st-key-circulation_filter"] [data-testid="stRadio"] label:has(input:checked) p {
+    color:#8f2f27 !important; font-weight:800 !important;
+  }
+  div[class*="st-key-circulation_filter"] [data-testid="stRadio"] > div {
+    display:grid !important; grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+    width:100% !important; gap:.25rem !important;
+  }
+  div[class*="st-key-circulation_filter"] [data-testid="stRadio"] label {
+    width:100% !important; min-width:0 !important; justify-content:center !important;
+    padding:.42rem .18rem !important; font-size:.82rem !important; white-space:nowrap !important;
   }
   .business-card { aspect-ratio:auto; min-height:220px; padding:21px 19px; border-radius:9px; }
   .presented-card { min-height:220px; }
@@ -477,17 +501,29 @@ def render_post(post):
                         st.session_state[f"report_open_{post['id']}"] = False; st.success("通報を受け付けました（デモ保存）。")
 
     if st.session_state.get(f"note_open_{post['id']}"):
-        with st.form(f"note-form-{post['id']}"):
-            preset = st.selectbox("定型付箋（任意）", ["自由に書く","承知しました。","異議なし。","お疲れさまです。","大変よくできました。","重要案件ですね。","続報をお待ちしております。","私も同様です。","ご自愛ください。"], key=f"preset-{post['id']}")
-            text = st.text_input("付箋", value="" if preset == "自由に書く" else preset, max_chars=120, key=f"note-text-{post['id']}")
-            if st.form_submit_button("付箋を貼る", type="primary") and text.strip():
-                post["notes"].append((st.session_state.surname, text.strip())); st.session_state[f"note_open_{post['id']}"] = False
-                st.toast("付箋を貼りました。"); st.rerun()
+        preset = st.selectbox(
+            "付箋の内容",
+            ["自由に書く","承知しました。","異議なし。","お疲れさまです。","大変よくできました。","重要案件ですね。","続報をお待ちしております。","私も同様です。","ご自愛ください。"],
+            key=f"preset-{post['id']}",
+        )
+        if preset == "自由に書く":
+            note_text = st.text_input("付箋", max_chars=120, key=f"note-text-{post['id']}", placeholder="ひとことお書きください")
+        else:
+            note_text = preset
+            st.markdown(f'<div class="note"><div class="note-body">{esc(note_text)}</div></div>', unsafe_allow_html=True)
+        if st.button("付箋を貼る", key=f"note-submit-{post['id']}", type="primary", use_container_width=True):
+            if note_text.strip():
+                post["notes"].append((st.session_state.surname, note_text.strip()))
+                st.session_state[f"note_open_{post['id']}"] = False
+                st.toast("付箋を貼りました。")
+                st.rerun()
+            else:
+                st.warning("付箋の内容を入力してください。")
 
 
 def page_circulation():
     st.markdown('<div class="section-title">本日の回覧</div>', unsafe_allow_html=True)
-    filter_mode = st.radio("表示", ["おすすめ","ご縁","自分","控え"], horizontal=True, label_visibility="collapsed")
+    filter_mode = st.radio("表示", ["おすすめ","ご縁","自分","控え"], horizontal=True, key="circulation_filter", label_visibility="collapsed")
     posts = [p for p in reversed(st.session_state.posts) if p["surname"] not in st.session_state.blocked]
     if filter_mode == "自分": posts = [p for p in posts if p["surname"] == st.session_state.surname]
     elif filter_mode == "ご縁": posts = [p for p in posts if p["surname"] in st.session_state.follows]
