@@ -7,7 +7,7 @@ import streamlit as st
 
 
 st.set_page_config(
-    page_title="わたくし、こういう者です。",
+    page_title="わたくし柴原と申します。",
     page_icon="㊞",
     layout="centered",
     initial_sidebar_state="collapsed",
@@ -20,6 +20,8 @@ CSS = r"""
   --line:#ded8ce; --note:#fff5b8;
 }
 html, body, [data-testid="stAppViewContainer"] { background:var(--paper); color:var(--ink); }
+html { color-scheme:light !important; }
+[data-testid="stAppViewContainer"], [data-testid="stAppViewContainer"] * { color-scheme:light; }
 [data-testid="stHeader"] { background:rgba(251,250,246,.95); }
 .block-container { max-width:720px; padding-top:2.4rem; padding-bottom:6rem; }
 #MainMenu, footer { visibility:hidden; }
@@ -46,13 +48,16 @@ html, body, [data-testid="stAppViewContainer"] { background:var(--paper); color:
   color:var(--vermilion); background:#fff; font-family:"Yu Mincho","Hiragino Mincho ProN",serif; font-size:1.05rem; font-weight:800;
   transform:rotate(-4deg); transition:border-color .15s ease, color .15s ease, transform .15s ease; }
 [data-testid="stForm"] [data-testid="stCheckbox"] label:has(input:checked)::before { content:"済"; border-color:var(--vermilion);
-  box-shadow:inset 0 0 0 1px rgba(169,59,50,.18); transform:rotate(-4deg) scale(1.04); }
+  box-shadow:inset 0 0 0 1px rgba(169,59,50,.18); animation:sealPop .34s cubic-bezier(.2,.85,.3,1.2) both; }
+@keyframes sealPop { 0%{opacity:.15;transform:rotate(-4deg) scale(1.35)} 55%{opacity:1;transform:rotate(-4deg) scale(.9)} 100%{transform:rotate(-4deg) scale(1.04)} }
 
 .stamp { display:inline-flex; align-items:center; justify-content:center; width:54px; height:54px;
   border:3px solid var(--stamp-color,#a93b32); color:var(--stamp-color,#a93b32); border-radius:50%;
   font-weight:800; line-height:1; text-align:center; font-size:16px; letter-spacing:-1px; transform:rotate(-3deg);
   background:rgba(255,255,255,.25); box-shadow:inset 0 0 0 1px rgba(169,59,50,.18); }
 .stamp.small { width:32px; height:32px; border-width:2px; font-size:11px; }
+.stamps-line .stamp:last-child { animation:stampArrive .34s cubic-bezier(.2,.82,.28,1.18) both; }
+@keyframes stampArrive { 0%{opacity:0;transform:rotate(-8deg) scale(1.4)} 65%{opacity:1;transform:rotate(-2deg) scale(.9)} 100%{transform:rotate(-3deg) scale(1)} }
 .stamp.square { border-radius:7px; }
 
 .business-card { position:relative; overflow:hidden; aspect-ratio:1.72/1; min-height:250px; border:1px solid #d8d0c4;
@@ -91,6 +96,7 @@ html, body, [data-testid="stAppViewContainer"] { background:var(--paper); color:
 .card-honorific { font-size:.77rem; color:#81786e; letter-spacing:.12em; margin-bottom:4px; }
 .surname { font-family:"Yu Mincho","Hiragino Mincho ProN",serif; font-size:2.05rem; line-height:1.15; font-weight:700; letter-spacing:.13em; }
 .card-bio { margin-top:12px; color:#5d574f; font-size:.9rem; line-height:1.65; max-width:72%; }
+.card-interests { margin-top:7px; color:#7b7168; font-size:.72rem; letter-spacing:.03em; }
 .card-bottom { position:relative; z-index:1; border-top:1px solid #e8e1d7; padding-top:13px; display:flex; justify-content:space-between; gap:12px; align-items:flex-end; }
 .card-meta { display:flex; gap:18px; flex-wrap:wrap; }
 .card-meta-item { font-size:.69rem; letter-spacing:.06em; color:#8a8177; }
@@ -116,11 +122,46 @@ html, body, [data-testid="stAppViewContainer"] { background:var(--paper); color:
 .note-name { font-weight:700; font-size:.78rem; color:#665f45; }
 .note-body { font-size:.9rem; margin-top:2px; }
 
+.courtesy-wait { display:flex; align-items:center; gap:18px; padding:16px 18px; margin:10px 0; border:1px solid #ead8d2;
+  border-radius:14px; background:#fffdf9; color:var(--ink); box-shadow:0 6px 20px rgba(67,52,45,.06); }
+.card-clerk { position:relative; width:82px; height:68px; flex:0 0 82px; }
+.clerk-head { position:absolute; width:24px; height:24px; left:29px; top:1px; border:2px solid #5b554f; border-radius:50%; background:#f7ddc7; }
+.clerk-body { position:absolute; width:42px; height:39px; left:20px; top:25px; border-radius:12px 12px 5px 5px; background:#e7e3dc; border:2px solid #777067; }
+.clerk-card { position:absolute; width:30px; height:18px; left:49px; top:37px; border:2px solid var(--vermilion); border-radius:2px;
+  background:#fff; animation:offerCard 1.25s ease-in-out infinite; }
+.clerk-hands::before,.clerk-hands::after { content:""; position:absolute; width:28px; height:3px; top:46px; background:#777067; border-radius:4px; }
+.clerk-hands::before { left:27px; transform:rotate(13deg); }.clerk-hands::after { left:34px; transform:rotate(-10deg); }
+@keyframes offerCard { 0%,18%{transform:translateX(-15px) scale(.88);opacity:.35} 48%,72%{transform:translateX(0) scale(1);opacity:1} 100%{transform:translateX(-15px) scale(.88);opacity:.35} }
+.wait-copy b { display:block; font-size:.9rem; margin-bottom:3px; }.wait-copy span { color:var(--muted); font-size:.78rem; }
+
 [data-testid="stForm"] { border:1px solid var(--line); border-radius:14px; padding:16px; background:#fff; }
-.stButton > button, .stFormSubmitButton > button { border-radius:999px; font-weight:700; }
-.stButton > button[kind="primary"], .stFormSubmitButton > button[kind="primary"] { background:var(--vermilion); border-color:var(--vermilion); }
+.stButton > button, .stFormSubmitButton > button { border-radius:999px; font-weight:700; background:#fff !important; color:#403b35 !important;
+  border:1px solid #d9d3ca !important; box-shadow:none !important; }
+.stButton > button:hover, .stFormSubmitButton > button:hover { color:var(--vermilion) !important; border-color:#c77b72 !important; background:#fffaf8 !important; }
+.stButton > button:active, .stFormSubmitButton > button:active { transform:translateY(1px); }
+.stButton > button[kind="primary"], .stFormSubmitButton > button[kind="primary"] { background:var(--vermilion) !important;
+  color:#fff !important; border-color:var(--vermilion) !important; }
+.stButton > button[kind="primary"]:hover, .stFormSubmitButton > button[kind="primary"]:hover { background:#913128 !important; color:#fff !important; }
+[data-baseweb="input"] > div, [data-baseweb="base-input"], [data-baseweb="textarea"] > div,
+[data-baseweb="select"] > div, [data-testid="stTextInput"] input, [data-testid="stTextArea"] textarea { background:#fff !important;
+  color:#2d2a26 !important; border-color:#d8d2ca !important; -webkit-text-fill-color:#2d2a26 !important; }
+[data-testid="stTextInput"] input::placeholder, [data-testid="stTextArea"] textarea::placeholder { color:#817970 !important; opacity:1 !important; }
+[data-baseweb="input"]:focus-within, [data-baseweb="textarea"]:focus-within, [data-baseweb="select"]:focus-within { border-color:var(--vermilion) !important;
+  box-shadow:0 0 0 3px rgba(169,59,50,.12) !important; }
+[role="listbox"], [role="option"], [data-baseweb="popover"] { background:#fff !important; color:#2d2a26 !important; }
+[role="option"]:hover, [role="option"][aria-selected="true"] { background:#faece8 !important; color:#2d2a26 !important; }
+[class*="st-key-stamp-"] button { background:#fff !important; color:var(--vermilion) !important; border-color:var(--vermilion) !important; }
+[class*="st-key-stamp-"][class*="-done"] button { background:#fae9e5 !important; color:#8f2f27 !important; box-shadow:inset 0 0 0 1px rgba(169,59,50,.08) !important; }
+[class*="st-key-note-"] button { background:#fff8d8 !important; color:#635a3c !important; border-color:#eadb94 !important; }
+[class*="st-key-save-"] button { background:#fff !important; color:#5f5952 !important; border-color:#d8d2ca !important; }
+[class*="st-key-profile-"] button, [class*="st-key-related-"] button, [class*="st-key-person-"] button,
+[class*="st-key-notice-person-"] button { background:#fffdf9 !important; color:#413a34 !important; border-color:#e3d8ce !important;
+  border-radius:9px !important; box-shadow:0 2px 7px rgba(69,53,45,.05) !important; }
 [data-testid="stRadio"] > div { gap:.2rem; }
 [data-testid="stRadio"] label { padding:.35rem .55rem; border-radius:10px; }
+[data-testid="stRadio"] label:has(input:checked) { background:#fae9e5 !important; color:#8f2f27 !important; box-shadow:inset 0 0 0 1px #dfaaa2; }
+[data-testid="stFileUploader"] button { background:#fff !important; color:#403b35 !important; border:1px solid #d8d2ca !important; }
+[data-testid="stExpander"] { background:#fffdf9; border-color:#ded8ce !important; }
 @media (max-width:640px) {
   .block-container { padding:1.8rem .75rem 6.5rem; }
   .app-title { font-size:1.22rem; padding-top:.25rem; }
@@ -133,8 +174,10 @@ html, body, [data-testid="stAppViewContainer"] { background:var(--paper); color:
   .card-stamp-wrap { transform:scale(.9); transform-origin:top right; }
   [data-testid="stHorizontalBlock"] { gap:.38rem; }
   .stButton > button { min-height:2.65rem; padding-left:.55rem; padding-right:.55rem; }
+  .courtesy-wait { padding:12px; gap:10px; }.card-clerk { transform:scale(.85); transform-origin:left center; margin-right:-9px; }
 }
-@media (prefers-reduced-motion:reduce) { .presented-card { animation:none; } }
+@media (prefers-reduced-motion:reduce) { .presented-card,.stamps-line .stamp:last-child,.clerk-card,
+  [data-testid="stForm"] [data-testid="stCheckbox"] label:has(input:checked)::before { animation:none; } }
 </style>
 """
 st.markdown(CSS, unsafe_allow_html=True)
@@ -164,11 +207,11 @@ WAITING_MESSAGES = {
     "long":["担当の者が向かっております","印鑑を取りに戻っております","少々、机の上を整えております","ただいま稟議書を運んでおります"],
 }
 DEMO_PROFILES = {
-    "佐藤":{"bio":"甘いものの案件を多めに扱っております。","theme":"和紙","color":"朱色","shape":"丸印","presence":"在席しております"},
-    "田中":{"bio":"洗濯と散歩についてご報告します。","theme":"モダン","color":"藍色","shape":"角印","presence":"離席中です"},
-    "鈴木":{"bio":"だいたい承知しております。","theme":"桜","color":"紫","shape":"丸印","presence":"別件打ち合わせ中です"},
-    "山田":{"bio":"お茶と読書を担当しております。","theme":"レトロ事務","color":"深緑","shape":"丸印","presence":"在席しております"},
-    "高橋":{"bio":"ときどき重要案件を回覧します。","theme":"白無地","color":"墨","shape":"角印","presence":"外出しております"},
+    "佐藤":{"bio":"甘いものの案件を多めに扱っております。","interests":["プリン","喫茶店"],"theme":"和紙","color":"朱色","shape":"丸印","presence":"在席しております"},
+    "田中":{"bio":"洗濯と散歩についてご報告します。","interests":["散歩","洗濯"],"theme":"モダン","color":"藍色","shape":"角印","presence":"離席中です"},
+    "鈴木":{"bio":"だいたい承知しております。","interests":["読書","おやつ"],"theme":"桜","color":"紫","shape":"丸印","presence":"別件打ち合わせ中です"},
+    "山田":{"bio":"お茶と読書を担当しております。","interests":["お茶","読書"],"theme":"レトロ事務","color":"深緑","shape":"丸印","presence":"在席しております"},
+    "高橋":{"bio":"ときどき重要案件を回覧します。","interests":["日常","散策"],"theme":"白無地","color":"墨","shape":"角印","presence":"外出しております"},
 }
 
 
@@ -181,13 +224,18 @@ def waiting_message(kind="short"):
     return picked
 
 
+def courtesy_wait_html(message="名刺をお渡ししております。", detail="少々お待ちくださいませ。"):
+    return f'''<div class="courtesy-wait"><div class="card-clerk" aria-hidden="true">
+      <span class="clerk-head"></span><span class="clerk-body"></span><span class="clerk-hands"></span><span class="clerk-card"></span>
+      </div><div class="wait-copy"><b>{esc(message)}</b><span>{esc(detail)}</span></div></div>'''
+
+
 def esc(value):
     return html.escape(str(value))
 
 
 def stamp_html(surname, small=False, color="#a93b32", square=False):
     classes = "stamp" + (" small" if small else "") + (" square" if square else "")
-    display = "<br>".join([esc(surname[:2]), esc(surname[2:])]) if len(surname) > 2 else esc(surname)
     return f'<span class="{classes}" style="--stamp-color:{color}">{display}</span>'
 
 
@@ -199,7 +247,7 @@ def image_data_uri(image_bytes, mime):
 
 def init_state():
     defaults = {
-        "registered":False, "surname":"", "bio":"", "stamp_color":"朱色", "stamp_shape":"丸印", "card_theme":"白無地",
+        "registered":False, "surname":"", "bio":"", "interests":[], "stamp_color":"朱色", "stamp_shape":"丸印", "card_theme":"白無地",
         "presence_status":"在席しております", "follows":set(), "saved":set(), "blocked":set(), "reports":[], "flash":"",
         "view_profile":None, "editing_post":None,
         "posts":[
@@ -216,7 +264,7 @@ init_state()
 
 
 def header():
-    title = f"わたくし{esc(st.session_state.surname)}と申します" if st.session_state.get("registered") and st.session_state.get("surname") else "わたくし、こういう者です。"
+    title = "わたくし柴原と申します。"
     st.markdown(f'<div class="app-title">{title}</div>', unsafe_allow_html=True)
     st.markdown('<div class="app-sub">承認するほどでもない日々を、承認しよう。</div>', unsafe_allow_html=True)
     if st.session_state.get("registered") and st.session_state.get("surname"):
@@ -258,7 +306,7 @@ def registration():
         else:
             st.session_state.surname = cleaned
             st.session_state.registered = True
-            st.session_state.flash = f"{cleaned}さんですね。こちらがあなたの印鑑です。"
+            st.session_state.flash = f"お待たせいたしました。{cleaned}さんですね。こちらがあなたの印鑑です。"
             st.rerun()
     with st.expander("ご案内・よくあるご質問（FAQ）"):
         render_faq()
@@ -267,8 +315,8 @@ def registration():
 def get_profile(surname):
     if surname == st.session_state.surname:
         return {"bio":st.session_state.bio or "どうぞ、よしなに。", "theme":st.session_state.card_theme, "color":st.session_state.stamp_color,
-                "shape":st.session_state.stamp_shape, "presence":st.session_state.presence_status}
-    return DEMO_PROFILES.get(surname, {"bio":"どうぞ、よしなに。","theme":"白無地","color":"朱色","shape":"丸印","presence":"在席しております"})
+                "shape":st.session_state.stamp_shape, "presence":st.session_state.presence_status, "interests":st.session_state.interests}
+    return DEMO_PROFILES.get(surname, {"bio":"どうぞ、よしなに。","interests":[],"theme":"白無地","color":"朱色","shape":"丸印","presence":"在席しております"})
 
 
 def business_card_html(surname, own=False, presented=False):
@@ -282,8 +330,9 @@ def business_card_html(surname, own=False, presented=False):
     saved_count = len(st.session_state.saved) if own else "—"
     presented_class = " presented-card" if presented else ""
     return f'''<div class="business-card {theme["class"]}{presented_class}">
-      <div class="card-topline"><div><div class="card-label">WATAKUSHI, KOU IU MONO DESU.</div><div class="card-honorific">わたくし</div>
+      <div class="card-topline"><div><div class="card-label">WATAKUSHI SHIBAHARA TO MOUSHIMASU.</div><div class="card-honorific">わたくし</div>
       <div class="surname">{esc(surname)}</div><div class="card-bio">{esc(profile["bio"])}</div>
+      <div class="card-interests">{esc('・'.join(profile.get('interests', [])[:3]))}</div>
       <div class="status-badge" style="--status-color:{presence['color']}"><span class="status-dot"></span>{esc(profile['presence'])}</div></div>
       <div class="card-stamp-wrap">{stamp_html(surname, color=color, square=square)}</div></div>
       <div class="card-bottom"><div class="card-meta"><div class="card-meta-item">今日の稟議書<b>{post_count}件</b></div>
@@ -341,20 +390,22 @@ def render_post(post):
     if post.get("image_bytes"):
         st.image(post["image_bytes"], caption="添付資料", use_container_width=True)
 
-    c0, c1, c2, c3 = st.columns(4)
-    with c0:
-        if st.button(f"{post['surname']}さん", key=f"profile-{post['id']}", help="名刺を拝見", use_container_width=True):
-            open_profile(post["surname"]); st.rerun()
+    if st.button(f"{post['surname']}さん　{post['surname']}㊞", key=f"profile-{post['id']}", help="この方の名刺を拝見する", use_container_width=True):
+        open_profile(post["surname"]); st.rerun()
+
+    me = st.session_state.surname
+    stamped = me in post["stamps"]
+    c1, c2, c3 = st.columns(3)
     with c1:
-        if st.button("㊞ 捺印", key=f"stamp-{post['id']}", use_container_width=True):
-            me = st.session_state.surname
+        stamp_label = f"{me}㊞ 捺印済" if stamped else "㊞ 捺印"
+        if st.button(stamp_label, key=f"stamp-{post['id']}-{'done' if stamped else 'ready'}", use_container_width=True):
             if me not in post["stamps"]:
                 post["stamps"].append(me); st.toast("㊞ ポン。捺印しました。")
             else:
                 st.toast("すでに捺印済みです。")
             st.rerun()
     with c2:
-        if st.button("付箋", key=f"note-{post['id']}", use_container_width=True):
+        if st.button("＋ 付箋", key=f"note-{post['id']}", use_container_width=True):
             st.session_state[f"note_open_{post['id']}"] = not st.session_state.get(f"note_open_{post['id']}", False); st.rerun()
     with c3:
         saved = post["id"] in st.session_state.saved
@@ -444,14 +495,16 @@ def page_draft():
             st.error("件名とご報告を入力してください。")
         else:
             image_bytes = None; image_mime = None
-            with st.spinner(waiting_message("short") + "…"):
-                if photo is not None:
-                    image_bytes = photo.getvalue(); image_mime = photo.type
-                post = {"id":f"p-{datetime.now().timestamp()}-{random.randint(100,999)}","surname":st.session_state.surname,
-                        "title":title.strip(),"body":body.strip(),"created_at":"たった今","stamps":[],"notes":[],
-                        "image_bytes":image_bytes,"image_mime":image_mime}
-                st.session_state.posts.append(post)
-            st.success("稟議書を提出いたしました。お疲れさまでした。")
+            waiting_area = st.empty()
+            if photo is not None:
+                waiting_area.markdown(courtesy_wait_html("資料を整えております。", "ただいま回覧にお持ちしております。"), unsafe_allow_html=True)
+                image_bytes = photo.getvalue(); image_mime = photo.type
+            post = {"id":f"p-{datetime.now().timestamp()}-{random.randint(100,999)}","surname":st.session_state.surname,
+                    "title":title.strip(),"body":body.strip(),"created_at":"たった今","stamps":[],"notes":[],
+                    "image_bytes":image_bytes,"image_mime":image_mime}
+            st.session_state.posts.append(post)
+            waiting_area.empty()
+            st.session_state.flash = "お待たせいたしました。稟議書を提出いたしました。お疲れさまでした。"
             st.session_state.nav_redirect = "回覧"; st.rerun()
 
 
@@ -538,8 +591,13 @@ def page_profile():
 
     with st.expander("名刺を整える"):
         new_bio = st.text_input("一言", value=st.session_state.bio, max_chars=60, placeholder="例：だいたい眠いです。")
-        st.caption("勤務先・住所・年齢などは載せず、名字と短い一言だけで十分です。")
-        if st.button("名刺を更新", use_container_width=True): st.session_state.bio = new_bio.strip(); st.toast("名刺を更新しました。"); st.rerun()
+        interests_text = st.text_input("好きなもの・主な投稿ジャンル（3つまで）", value="、".join(st.session_state.interests),
+                                       max_chars=60, placeholder="例：プリン、散歩、読書")
+        st.caption("勤務先・住所・学校・年齢などは載せません。項目は読点「、」で区切ってください。")
+        if st.button("名刺を更新", use_container_width=True):
+            st.session_state.bio = new_bio.strip()
+            st.session_state.interests = [item.strip() for item in interests_text.replace(",", "、").split("、") if item.strip()][:3]
+            st.toast("名刺を更新しました。"); st.rerun()
 
     st.markdown("### 名刺屋")
     selected_theme = st.selectbox("名刺デザイン", list(CARD_THEMES), index=list(CARD_THEMES).index(st.session_state.card_theme),
