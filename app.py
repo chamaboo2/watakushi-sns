@@ -163,8 +163,21 @@ html { color-scheme:light !important; }
 [data-testid="stFileUploader"] button { background:#fff !important; color:#403b35 !important; border:1px solid #d8d2ca !important; }
 [data-testid="stExpander"] { background:#fffdf9; border-color:#ded8ce !important; }
 @media (max-width:640px) {
-  .block-container { padding:1.8rem .75rem 6.5rem; }
+  /* Streamlitのスマホ用ツールバーと重ならないよう、本文の開始位置を下げる */
+  .block-container { padding:4.6rem .75rem 6.5rem; }
   .app-title { font-size:1.22rem; padding-top:.25rem; }
+  /* 主ナビは端末幅いっぱいの5等分。内容幅による横はみ出しを防ぐ */
+  div[class*="st-key-nav"] [data-testid="stRadio"] > div {
+    display:grid !important; grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    width:100% !important; gap:.2rem !important;
+  }
+  div[class*="st-key-nav"] [data-testid="stRadio"] label {
+    width:100% !important; min-width:0 !important; justify-content:center !important;
+    padding:.42rem .14rem !important; font-size:.79rem !important; white-space:nowrap !important;
+  }
+  div[class*="st-key-nav"] [data-testid="stRadio"] label > div:last-child {
+    min-width:0 !important; white-space:nowrap !important;
+  }
   .business-card { aspect-ratio:auto; min-height:220px; padding:21px 19px; border-radius:9px; }
   .presented-card { min-height:220px; }
   .surname { font-size:1.65rem; }
