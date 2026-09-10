@@ -1,4 +1,3 @@
-import base64
 import html
 import random
 from datetime import datetime
@@ -29,7 +28,10 @@ html { color-scheme:light !important; }
   letter-spacing:.05em; margin:0 0 .15rem; padding-top:.35rem; opacity:1 !important; }
 .app-sub { text-align:center; color:#665f57 !important; font-size:.82rem; margin-bottom:1.2rem; opacity:1 !important; }
 .attendance { width:max-content; max-width:100%; margin:-.65rem auto 1rem; padding:5px 11px; border:1px solid #ded8ce;
-  border-radius:999px; background:#fff; color:#6f675e; font-size:.74rem; font-weight:700; letter-spacing:.04em; }
+  border-radius:999px; background:#fff; color:#6f675e; font-size:.74rem; font-weight:700; letter-spacing:.04em;
+  display:flex; align-items:center; justify-content:center; gap:7px; }
+.attendance-worker { display:inline-flex; align-items:center; justify-content:center; width:25px; height:25px; flex:0 0 25px;
+  border-radius:50%; background:#f8eee8; box-shadow:inset 0 0 0 1px #ead7cf; font-size:16px; line-height:1; }
 .section-title { font-weight:800; font-size:1.25rem; margin:.25rem 0 .7rem; }
 .muted { color:var(--muted); font-size:.9rem; }
 .term-help { color:#777067; font-size:.78rem; margin:-.45rem 0 .7rem; }
@@ -283,20 +285,14 @@ def stamp_html(surname, small=False, color="#a93b32", square=False):
     return f'<span class="{classes}" style="--stamp-color:{color}">{display}</span>'
 
 
-def image_data_uri(image_bytes, mime):
-    if not image_bytes:
-        return None
-    return f"data:{mime};base64,{base64.b64encode(image_bytes).decode('ascii')}"
-
-
 def init_state():
     defaults = {
         "registered":False, "surname":"", "bio":"", "interests":[], "stamp_color":"朱色", "stamp_shape":"丸印", "card_theme":"白無地",
         "presence_status":"在席しております", "follows":set(), "saved":set(), "blocked":set(), "reports":[], "flash":"",
         "view_profile":None, "editing_post":None, "seen_guides":set(),
         "posts":[
-            {"id":"demo-1","surname":"佐藤","title":"午後のおやつ購入の件","body":"本日15時、プリンを購入いたしました。\n大変おいしく、再購入の可能性が高いことをご報告いたします。","created_at":"本日 15:42","stamps":["鈴木","高橋","山田"],"notes":[("鈴木","再購入を推奨いたします。"),("山田","重要案件ですね。")],"image_bytes":None,"image_mime":None},
-            {"id":"demo-2","surname":"田中","title":"洗濯物の乾燥状況について","body":"想定より早く乾きました。\n以上、取り急ぎご報告まで。","created_at":"本日 13:10","stamps":["佐藤"],"notes":[],"image_bytes":None,"image_mime":None},
+            {"id":"demo-1","surname":"佐藤","title":"午後のおやつ購入の件","body":"本日15時、プリンを購入いたしました。\n大変おいしく、再購入の可能性が高いことをご報告いたします。","created_at":"本日 15:42","stamps":["鈴木","高橋","山田"],"notes":[("鈴木","再購入を推奨いたします。"),("山田","重要案件ですね。")]},
+            {"id":"demo-2","surname":"田中","title":"洗濯物の乾燥状況について","body":"想定より早く乾きました。\n以上、取り急ぎご報告まで。","created_at":"本日 13:10","stamps":["佐藤"],"notes":[]},
         ],
     }
     for key, value in defaults.items():
@@ -312,7 +308,7 @@ def header():
     st.markdown(f'<div class="app-title">{title}</div>', unsafe_allow_html=True)
     st.markdown('<div class="app-sub">承認するほどでもない日々を、承認しよう。</div>', unsafe_allow_html=True)
     if st.session_state.get("registered") and st.session_state.get("surname"):
-        st.markdown(f'<div class="attendance">ただいま {esc(st.session_state.surname)} 出社中</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="attendance"><span class="attendance-worker" aria-hidden="true">👨‍💻</span><span>ただいま {esc(st.session_state.surname)} 出社中</span></div>', unsafe_allow_html=True)
 
 
 def show_first_guide(guide_key, message):
@@ -448,9 +444,6 @@ def render_post(post):
       <div class="ringi-meta">{esc(post['surname'])}さん ・ {esc(post['created_at'])}</div></div>{stamp}</div>
       <div class="ringi-title">件名：{esc(post['title'])}</div><div class="ringi-body">{esc(post['body'])}</div>
       <div class="stamps-line"><span class="ringi-meta">捺印 {len(post['stamps'])}件</span>{stamp_line}</div>{notes_html}</div>''', unsafe_allow_html=True)
-    if post.get("image_bytes"):
-        st.image(post["image_bytes"], caption="添付資料", use_container_width=True)
-
     if st.button(f"{post['surname']}さん　㊞", key=f"profile-{post['id']}", help="名字を押すと名刺（プロフィール）を拝見できます", use_container_width=True):
         open_profile(post["surname"]); st.rerun()
 
@@ -567,7 +560,6 @@ def page_draft():
     with st.form("draft"):
         title = st.text_input("件名", placeholder="例：今日のプリンについて", max_chars=60)
         body = st.text_area("ご報告", placeholder="例：帰りにプリンを買いました。\n大変おいしかったです。", height=170, max_chars=1000)
-        photo = st.file_uploader("写真を添える（任意）", type=["jpg","jpeg","png","webp"])
         submitted = st.form_submit_button("提出する", type="primary", use_container_width=True)
     if submitted:
         if not title.strip():
@@ -575,16 +567,9 @@ def page_draft():
         elif not body.strip():
             st.error("ご報告の内容を入力してください。")
         else:
-            image_bytes = None; image_mime = None
-            waiting_area = st.empty()
-            if photo is not None:
-                waiting_area.markdown(courtesy_wait_html("資料を整えております。", "ただいま回覧にお持ちしております。"), unsafe_allow_html=True)
-                image_bytes = photo.getvalue(); image_mime = photo.type
             post = {"id":f"p-{datetime.now().timestamp()}-{random.randint(100,999)}","surname":st.session_state.surname,
-                    "title":title.strip(),"body":body.strip(),"created_at":"たった今","stamps":[],"notes":[],
-                    "image_bytes":image_bytes,"image_mime":image_mime}
+                    "title":title.strip(),"body":body.strip(),"created_at":"たった今","stamps":[],"notes":[]}
             st.session_state.posts.append(post)
-            waiting_area.empty()
             st.session_state.flash = "稟議書を提出しました。お疲れさまでした。"
             st.session_state.nav_redirect = "回覧"; st.rerun()
 
