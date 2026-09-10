@@ -32,6 +32,11 @@ html { color-scheme:light !important; }
   border-radius:999px; background:#fff; color:#6f675e; font-size:.74rem; font-weight:700; letter-spacing:.04em; }
 .section-title { font-weight:800; font-size:1.25rem; margin:.25rem 0 .7rem; }
 .muted { color:var(--muted); font-size:.9rem; }
+.term-help { color:#777067; font-size:.78rem; margin:-.45rem 0 .7rem; }
+.first-steps { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin:5px 0 2px; }
+.first-step { padding:9px 5px; border:1px solid #e6ded4; border-radius:9px; background:#fffdf9; text-align:center; }
+.first-step b { display:block; color:#a93b32; font-size:.78rem; margin-top:2px; }
+.first-step span { color:#625b53; font-size:.72rem; }
 .callout { border-left:4px solid var(--vermilion); background:#fff; padding:10px 13px; border-radius:8px; margin:10px 0 14px; }
 .hero-copy { font-size:1.05rem; line-height:1.7; text-align:center; margin:.5rem 0 1rem; }
 [data-testid="stForm"] [data-testid="stCheckbox"] label { display:flex; align-items:center; gap:11px; margin:5px 0 9px; cursor:pointer; }
@@ -168,6 +173,7 @@ html { color-scheme:light !important; }
   /* Streamlitのスマホ用ツールバーと重ならないよう、本文の開始位置を下げる */
   .block-container { padding:4.6rem .75rem 6.5rem; }
   .app-title { font-size:1.22rem; padding-top:.25rem; }
+  .first-steps { grid-template-columns:repeat(2,1fr); }
   /* 主ナビは端末幅いっぱいの5等分。内容幅による横はみ出しを防ぐ */
   div[class*="st-key-nav"] [data-testid="stRadio"] > div {
     display:grid !important; grid-template-columns:repeat(5,minmax(0,1fr)) !important;
@@ -287,7 +293,7 @@ def init_state():
     defaults = {
         "registered":False, "surname":"", "bio":"", "interests":[], "stamp_color":"朱色", "stamp_shape":"丸印", "card_theme":"白無地",
         "presence_status":"在席しております", "follows":set(), "saved":set(), "blocked":set(), "reports":[], "flash":"",
-        "view_profile":None, "editing_post":None,
+        "view_profile":None, "editing_post":None, "seen_guides":set(),
         "posts":[
             {"id":"demo-1","surname":"佐藤","title":"午後のおやつ購入の件","body":"本日15時、プリンを購入いたしました。\n大変おいしく、再購入の可能性が高いことをご報告いたします。","created_at":"本日 15:42","stamps":["鈴木","高橋","山田"],"notes":[("鈴木","再購入を推奨いたします。"),("山田","重要案件ですね。")],"image_bytes":None,"image_mime":None},
             {"id":"demo-2","surname":"田中","title":"洗濯物の乾燥状況について","body":"想定より早く乾きました。\n以上、取り急ぎご報告まで。","created_at":"本日 13:10","stamps":["佐藤"],"notes":[],"image_bytes":None,"image_mime":None},
@@ -309,17 +315,32 @@ def header():
         st.markdown(f'<div class="attendance">ただいま {esc(st.session_state.surname)} 出社中</div>', unsafe_allow_html=True)
 
 
+def show_first_guide(guide_key, message):
+    if guide_key not in st.session_state.seen_guides:
+        st.info(message, icon="💡")
+        st.session_state.seen_guides.add(guide_key)
+
+
+def render_first_steps():
+    with st.expander("はじめての方へ"):
+        st.markdown('''<div class="first-steps">
+          <div class="first-step"><span>① 読む</span><b>回覧</b></div>
+          <div class="first-step"><span>② 共感</span><b>捺印</b></div>
+          <div class="first-step"><span>③ 話しかける</span><b>付箋</b></div>
+          <div class="first-step"><span>④ 書く</span><b>起案</b></div>
+        </div>''', unsafe_allow_html=True)
+
+
 def render_faq():
     faqs = [
-        ("これは会社員専用のSNSですか？", "いいえ。どなたでも参加できます。事務的な言葉づかいを、少しかわいく楽しむSNSです。上司・部下・役職・社員ランクはありません。"),
-        ("何を投稿すればよいですか？", "食べたもの、散歩、昼寝など、日常の小さな出来事で十分です。投稿を『今日の稟議書』、投稿することを『起案・提出』と呼びますが、誰かの承認は必要ありません。"),
-        ("本当の名字を登録する必要がありますか？", "原則として、実際に使用している名字を登録してください。戸籍姓に限らず、旧姓や普段使用している通称も含みます。本人確認書類の提出は求めません。"),
-        ("名字以外の個人情報も公開されますか？", "基本プロフィールは名字と短い一言だけです。年齢、性別、勤務先、学校、住所は登録項目にしていません。投稿にも個人を特定できる情報を書かないことをおすすめします。"),
-        ("ハンコは何に使いますか？", "ハンコは、このSNSでのあなたのアイコンです。『捺印』すると相手の稟議書に自分の名字の印が表示されます。捺印は一般的なSNSの『いいね』に近い機能です。"),
-        ("付箋・回覧・控えとは何ですか？", "付箋はコメント、回覧はシェア、控えはブックマークです。意味が分からなくなったときは、このご案内へお戻りください。"),
-        ("ご縁とは何ですか？", "一般的なSNSのフォローです。『ご縁を結ぶ』と、その方の稟議書を見つけやすくなります。上下関係や承認関係は生まれません。"),
-        ("嫌な投稿や利用者を見つけたら？", "投稿・名刺から通報できます。また、相手をブロックすると、その方の投稿は回覧に表示されなくなります。"),
-        ("有料にすると投稿が目立ちますか？", "いいえ。課金はハンコや名刺の着せ替えだけを想定しています。投稿の表示順や影響力が有利になる仕組みにはしません。"),
+        ("はじめての方へ", "回覧で投稿を読み、共感したら捺印、ひとこと残すなら付箋、自分で書くときは起案をお使いください。"),
+        ("名字について", "原則として、実際に使用している名字を登録してください。戸籍姓に限らず、旧姓や普段使用している通称も含みます。"),
+        ("ハンコについて", "ハンコはこのSNSでのアイコンです。捺印すると、相手の稟議書に自分の名字の印が表示されます。"),
+        ("投稿について", "食べたもの、散歩、昼寝など、日常の小さな出来事で十分です。投稿を『稟議書』、投稿作成を『起案』と呼びます。"),
+        ("捺印・付箋について", "捺印は『いいね』、付箋は『コメント』に近い機能です。どちらも稟議書の下から操作できます。"),
+        ("ご縁について", "ご縁は『フォロー』に近い機能です。上下関係や承認関係は生まれません。"),
+        ("安全機能", "嫌な投稿や利用者は通報できます。相手をブロックすると、その方の投稿は回覧に表示されなくなります。"),
+        ("退会について", "正式版では設定から退会でき、保存したデータの削除を申請できる設計にします。現在の試作版にはアカウント保存・退会機能はまだありません。"),
     ]
     st.caption("形式は少々かしこまっておりますが、どうぞ気軽にお使いください。")
     for question, answer in faqs:
@@ -346,7 +367,7 @@ def registration():
             st.session_state.registered = True
             st.session_state.flash = f"お待たせいたしました。{cleaned}さんですね。こちらがあなたの印鑑です。"
             st.rerun()
-    with st.expander("ご案内・よくあるご質問（FAQ）"):
+    with st.expander("ご案内所（困ったときはこちら）"):
         render_faq()
 
 
@@ -385,6 +406,7 @@ def open_profile(surname):
 @st.dialog("名刺を拝見", width="medium")
 def profile_dialog(surname):
     st.markdown('<div class="profile-prompt">名刺を一枚、お預かりしました。</div>', unsafe_allow_html=True)
+    show_first_guide("profile", "名字を押すと、その方の名刺を拝見できます。ここから『ご縁』を結ぶこともできます。")
     st.markdown(business_card_html(surname, own=(surname == st.session_state.surname), presented=True), unsafe_allow_html=True)
     if surname == st.session_state.surname:
         st.caption("こちらは、あなたの名刺です。")
@@ -392,8 +414,9 @@ def profile_dialog(surname):
         c1, c2 = st.columns(2)
         with c1:
             following = surname in st.session_state.follows
-            if st.button("ご縁を外す" if following else "ご縁を結ぶ", key=f"dialog-follow-{surname}", type="primary" if not following else "secondary", use_container_width=True):
+            if st.button("ご縁を外す" if following else "ご縁を結ぶ（フォロー）", key=f"dialog-follow-{surname}", type="primary" if not following else "secondary", use_container_width=True):
                 st.session_state.follows.discard(surname) if following else st.session_state.follows.add(surname)
+                st.toast("ご縁を外しました。" if following else f"{surname}さんとご縁ができました。")
                 st.rerun()
         with c2:
             blocked = surname in st.session_state.blocked
@@ -428,7 +451,7 @@ def render_post(post):
     if post.get("image_bytes"):
         st.image(post["image_bytes"], caption="添付資料", use_container_width=True)
 
-    if st.button(f"{post['surname']}さん　{post['surname']}㊞", key=f"profile-{post['id']}", help="この方の名刺を拝見する", use_container_width=True):
+    if st.button(f"{post['surname']}さん　㊞", key=f"profile-{post['id']}", help="名字を押すと名刺（プロフィール）を拝見できます", use_container_width=True):
         open_profile(post["surname"]); st.rerun()
 
     me = st.session_state.surname
@@ -443,12 +466,14 @@ def render_post(post):
                 st.toast("すでに捺印済みです。")
             st.rerun()
     with c2:
-        if st.button("＋ 付箋", key=f"note-{post['id']}", use_container_width=True):
+        if st.button("＋ 付箋", key=f"note-{post['id']}", help="コメントを残す", use_container_width=True):
             st.session_state[f"note_open_{post['id']}"] = not st.session_state.get(f"note_open_{post['id']}", False); st.rerun()
     with c3:
         saved = post["id"] in st.session_state.saved
-        if st.button("控え済" if saved else "控え", key=f"save-{post['id']}", use_container_width=True):
-            st.session_state.saved.discard(post["id"]) if saved else st.session_state.saved.add(post["id"]); st.rerun()
+        if st.button("▣ 控え済" if saved else "□ 控え", key=f"save-{post['id']}", help="あとで見るために保存", use_container_width=True):
+            st.session_state.saved.discard(post["id"]) if saved else st.session_state.saved.add(post["id"])
+            st.toast("控えから外しました。" if saved else "控えに入れました。")
+            st.rerun()
 
     related_people = []
     for person in post["stamps"][-8:] + [name for name, _ in post["notes"][-3:]]:
@@ -523,6 +548,9 @@ def render_post(post):
 
 def page_circulation():
     st.markdown('<div class="section-title">本日の回覧</div>', unsafe_allow_html=True)
+    st.markdown('<div class="term-help">みんなの投稿を読む場所です。</div>', unsafe_allow_html=True)
+    show_first_guide("circulation", "こちらが本日の回覧です。気になる稟議書には『捺印』、ひとこと残すなら『付箋』をどうぞ。")
+    render_first_steps()
     filter_mode = st.radio("表示", ["おすすめ","ご縁","自分","控え"], horizontal=True, key="circulation_filter", label_visibility="collapsed")
     posts = [p for p in reversed(st.session_state.posts) if p["surname"] not in st.session_state.blocked]
     if filter_mode == "自分": posts = [p for p in posts if p["surname"] == st.session_state.surname]
@@ -534,15 +562,18 @@ def page_circulation():
 
 def page_draft():
     st.markdown('<div class="section-title">稟議書を起案する</div>', unsafe_allow_html=True)
-    st.caption("内容は気軽で大丈夫です。形式だけ、少々かしこまっております。")
+    st.markdown('<div class="term-help">起案とは、投稿を作ることです。</div>', unsafe_allow_html=True)
+    show_first_guide("draft", "今日のことを書いて、提出してください。食べたものや散歩など、普通の日常で大丈夫です。")
     with st.form("draft"):
-        title = st.text_input("件名", placeholder="例：本日の昼寝について", max_chars=60)
-        body = st.text_area("ご報告", placeholder="本日14時より休憩を開始したところ、想定を超えて眠ってしまいました。", height=170, max_chars=1000)
-        photo = st.file_uploader("添付資料（写真・任意）", type=["jpg","jpeg","png","webp"])
+        title = st.text_input("件名", placeholder="例：今日のプリンについて", max_chars=60)
+        body = st.text_area("ご報告", placeholder="例：帰りにプリンを買いました。\n大変おいしかったです。", height=170, max_chars=1000)
+        photo = st.file_uploader("写真を添える（任意）", type=["jpg","jpeg","png","webp"])
         submitted = st.form_submit_button("提出する", type="primary", use_container_width=True)
     if submitted:
-        if not title.strip() or not body.strip():
-            st.error("件名とご報告を入力してください。")
+        if not title.strip():
+            st.error("件名を入力してください。")
+        elif not body.strip():
+            st.error("ご報告の内容を入力してください。")
         else:
             image_bytes = None; image_mime = None
             waiting_area = st.empty()
@@ -554,7 +585,7 @@ def page_draft():
                     "image_bytes":image_bytes,"image_mime":image_mime}
             st.session_state.posts.append(post)
             waiting_area.empty()
-            st.session_state.flash = "お待たせいたしました。稟議書を提出いたしました。お疲れさまでした。"
+            st.session_state.flash = "稟議書を提出しました。お疲れさまでした。"
             st.session_state.nav_redirect = "回覧"; st.rerun()
 
 
@@ -568,8 +599,10 @@ def render_other_profile(surname):
         c1, c2 = st.columns(2)
         with c1:
             following = surname in st.session_state.follows
-            if st.button("ご縁を外す" if following else "ご縁を結ぶ", key=f"follow-card-{surname}", type="primary" if not following else "secondary", use_container_width=True):
-                st.session_state.follows.discard(surname) if following else st.session_state.follows.add(surname); st.rerun()
+            if st.button("ご縁を外す" if following else "ご縁を結ぶ（フォロー）", key=f"follow-card-{surname}", type="primary" if not following else "secondary", use_container_width=True):
+                st.session_state.follows.discard(surname) if following else st.session_state.follows.add(surname)
+                st.toast("ご縁を外しました。" if following else f"{surname}さんとご縁ができました。")
+                st.rerun()
         with c2:
             blocked = surname in st.session_state.blocked
             if st.button("ブロック解除" if blocked else "この方をブロック", key=f"block-card-{surname}", use_container_width=True):
@@ -587,13 +620,14 @@ def render_other_profile(surname):
 
 def page_search():
     st.markdown('<div class="section-title">探す</div>', unsafe_allow_html=True)
+    st.markdown('<div class="term-help">名字や稟議書を検索できます。</div>', unsafe_allow_html=True)
     q = st.text_input("名字・件名・本文から探す", placeholder="例：佐藤 / プリン")
     surnames = sorted(({p["surname"] for p in st.session_state.posts} | {st.session_state.surname}) - st.session_state.blocked)
     st.markdown("**名字から探す**")
     cols = st.columns(3)
     for i, surname in enumerate(surnames):
         with cols[i % 3]:
-            if st.button(f"{surname}さん", key=f"person-{surname}", use_container_width=True):
+            if st.button(f"{surname}さん　㊞", key=f"person-{surname}", help="名刺（プロフィール）を拝見する", use_container_width=True):
                 st.session_state.view_profile = surname; st.rerun()
     if q.strip():
         query = q.strip().lower()
@@ -604,6 +638,7 @@ def page_search():
 
 def page_notices():
     st.markdown('<div class="section-title">お達し</div>', unsafe_allow_html=True)
+    st.markdown('<div class="term-help">捺印・付箋・ご縁などのお知らせです。</div>', unsafe_allow_html=True)
     status_info = PRESENCE_STATUSES[st.session_state.presence_status]
     if status_info["quiet"]: st.info(f"現在『{st.session_state.presence_status}』。お達しは静かにしています。", icon="🔕")
     own = [p for p in st.session_state.posts if p["surname"] == st.session_state.surname]
@@ -626,7 +661,7 @@ def page_notices():
 
 def page_profile():
     st.markdown('<div class="section-title">わたくしの名刺</div>', unsafe_allow_html=True)
-    st.caption("プロフィールは、名刺を一枚差し出すような見え方にしています。")
+    st.markdown('<div class="term-help">あなたのプロフィールです。</div>', unsafe_allow_html=True)
     st.markdown(business_card_html(st.session_state.surname, own=True), unsafe_allow_html=True)
     st.caption(f"現在の名刺：{st.session_state.card_theme} ・ {CARD_THEMES[st.session_state.card_theme]['price']}")
 
@@ -672,7 +707,7 @@ def page_profile():
                 if st.button(f"{surname}さんのブロックを解除", key=f"unblock-{surname}"):
                     st.session_state.blocked.discard(surname); st.rerun()
 
-    with st.expander("ご案内・よくあるご質問（FAQ）"):
+    with st.expander("ご案内所（困ったときはこちら）"):
         render_faq()
 
 
@@ -685,7 +720,10 @@ def main():
     if "nav_redirect" in st.session_state:
         st.session_state.nav = st.session_state.pop("nav_redirect")
     if "nav" not in st.session_state: st.session_state.nav = "回覧"
-    nav = st.radio("メニュー", ["回覧","探す","起案","お達し","わたくし"], horizontal=True, key="nav", label_visibility="collapsed")
+    nav = st.radio(
+        "メニュー", ["回覧","探す","起案","お達し","わたくし"], horizontal=True, key="nav", label_visibility="collapsed",
+        format_func=lambda item: {"回覧":"📄 回覧","探す":"🔎 探す","起案":"＋ 起案","お達し":"🔔 お達し","わたくし":"▣ わたくし"}[item],
+    )
     st.divider()
     {"回覧":page_circulation,"探す":page_search,"起案":page_draft,"お達し":page_notices,"わたくし":page_profile}[nav]()
     if st.session_state.view_profile:
